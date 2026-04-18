@@ -7,3 +7,11 @@ ALTER TABLE categories ENABLE ROW LEVEL SECURITY; ALTER TABLE products ENABLE RO
 CREATE POLICY "pub_cat" ON categories FOR SELECT USING (true); CREATE POLICY "pub_prod" ON products FOR SELECT USING (is_active = true); CREATE POLICY "pub_test" ON testimonials FOR SELECT USING (is_active = true); CREATE POLICY "pub_msg" ON messages FOR INSERT WITH CHECK (true);
 INSERT INTO categories (name,name_ht,slug,icon,color,sort_order) VALUES ('Vêtements','Rad','vetements','👗','#F4A7BB',1),('Chaussures','Soulye','chaussures','👟','#A7D1F4',2),('Accessoires','Akseswa','accessoires','🎀','#C4B1D4',3),('Soins','Swen','soins','🧴','#A7F4D1',4),('Jouets','Jwèt','jouets','🧸','#F4D7A7',5),('Literie','Dra kabann','literie','🛏️','#D4A7F4',6) ON CONFLICT (slug) DO NOTHING;
 INSERT INTO testimonials (name,text_fr,text_ht,rating) VALUES ('Marie-Claire J.','J''ai trouvé tout ce dont j''avais besoin!','Mwen jwenn tout sa m te bezwen!',5),('Stéphanie P.','Service rapide et professionnel.','Sèvis la rapid e pwofesyonèl.',5),('Jocelyne D.','La robe de baptême était magnifique!','Wòb batèm nan te tèlman bèl!',5);
+
+-- Admin policies (allow all operations with anon key for simplicity)
+CREATE POLICY "Admin insert products" ON products FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin update products" ON products FOR UPDATE USING (true);
+CREATE POLICY "Admin delete products" ON products FOR DELETE USING (true);
+CREATE POLICY "Admin read messages" ON messages FOR SELECT USING (true);
+CREATE POLICY "Admin update messages" ON messages FOR UPDATE USING (true);
+CREATE POLICY "Admin delete messages" ON messages FOR DELETE USING (true);

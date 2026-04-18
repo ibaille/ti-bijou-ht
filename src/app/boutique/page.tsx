@@ -1,19 +1,28 @@
 "use client";
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ui/ProductCard";
 import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
 import { useStore } from "@/lib/store";
 import { t } from "@/lib/utils";
 import { DEMO_PRODUCTS, DEMO_CATEGORIES } from "@/lib/data";
+import { Product } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
 
 function BoutiqueContent() {
   const searchParams = useSearchParams();
   const { lang, filters, setFilter, resetFilters, favorites } = useStore();
+  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
+
+  useEffect(() => {
+    (async () => { try { const { data } = await supabase.from("products").select("*").eq("is_active", true).order("created_at", { ascending: false }); if (data && data.length > 0) setProducts(data as Product[]); } catch {} })();
+  }, []);
+
   useEffect(() => { const c = searchParams.get("category"); const f = searchParams.get("favorites"); if (c) setFilter("category", c); if (f === "true") setFilter("category", "__favorites__"); }, [searchParams, setFilter]);
+
   const isFav = filters.category === "__favorites__";
   const filtered = useMemo(() => {
-    let p = DEMO_PRODUCTS;
+    let p = products;
     if (isFav) { p = p.filter((x) => favorites.includes(x.id)); }
     else {
       if (filters.category) { const cat = DEMO_CATEGORIES.find((c) => c.slug === filters.category); if (cat) p = p.filter((x) => x.category_id === cat.id); }
@@ -22,7 +31,7 @@ function BoutiqueContent() {
       if (filters.search) { const q = filters.search.toLowerCase(); p = p.filter((x) => x.name.toLowerCase().includes(q) || x.name_ht.toLowerCase().includes(q)); }
     }
     return [...p].sort((a, b) => { if (filters.sort === "price_asc") return a.price - b.price; if (filters.sort === "price_desc") return b.price - a.price; if (filters.sort === "popular") return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0); return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); });
-  }, [filters, favorites, isFav]);
+  }, [filters, favorites, isFav, products]);
   const hasFilters = filters.category || filters.gender || filters.age;
   return (
     <div className="max-w-[1200px] mx-auto px-5 pt-28 pb-16">
@@ -34,7 +43,7 @@ function BoutiqueContent() {
         <select value={filters.age} onChange={(e) => setFilter("age", e.target.value)} className="py-2.5 px-4 border-2 border-gray-100 rounded-full text-sm font-body bg-white text-gray-500 min-w-[110px] appearance-none cursor-pointer"><option value="">{t(lang, "Tous âges", "Tout laj")}</option><option value="0-3">0-3 {t(lang, "mois", "mwa")}</option><option value="3-6">3-6 {t(lang, "mois", "mwa")}</option><option value="6-12">6-12 {t(lang, "mois", "mwa")}</option></select>
         <select value={filters.sort} onChange={(e) => setFilter("sort", e.target.value)} className="py-2.5 px-4 border-2 border-gray-100 rounded-full text-sm font-body bg-white text-gray-500 min-w-[130px] appearance-none cursor-pointer"><option value="newest">{t(lang, "Plus récents", "Pi resan")}</option><option value="price_asc">{t(lang, "Prix croissant", "Pri monte")}</option><option value="price_desc">{t(lang, "Prix décroissant", "Pri desann")}</option><option value="popular">{t(lang, "Populaires", "Popilè")}</option></select>
       </div>{hasFilters && <button onClick={resetFilters} className="mt-3 text-sm font-display font-semibold text-rose-dark border-2 border-rose-poudre px-5 py-2 rounded-full hover:bg-rose-poudre/10 transition-colors flex items-center justify-center">{t(lang, "Effacer filtres", "Efase filt yo")} ✕</button>}</div>)}
-      {filtered.length === 0 ? (<div className="text-center py-20 text-gray-400"><div className="text-5xl mb-4">{isFav ? "💝" : "🔍"}</div><p className="mb-4">{isFav ? t(lang, "Pas encore de favoris", "Poko gen favori") : t(lang, "Aucun article trouvé", "Pa jwenn atik")}</p>{isFav && <a href="/boutique" className="text-rose-dark font-display font-semibold hover:underline">{t(lang, "Découvrir nos articles", "Dekouvri atik nou yo")}</a>}</div>)
+      {filtered.length === 0 ? (<div className="text-center py-20 text-gray-400"><div className="text-5xl mb-4">{isFav ? "💝" : "🔍"}</div><p className="mb-4">{isFav ? t(lang, "Pas encore de favoris", "Poko gen favori") : t(lang, "Aucun article trouvé", "Pa jwenn atik")}</p></div>)
       : (<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">{filtered.map((p) => <ProductCard key={p.id} product={p} />)}</div>)}
       <WhatsAppFloat />
     </div>
