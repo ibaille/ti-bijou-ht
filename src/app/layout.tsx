@@ -1,8 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";
+
+export const viewport: Viewport = {
+  themeColor: "#F4A7BB",
+};
 
 export const metadata: Metadata = {
   title: "Ti Bijou Haïti — Boutique pour Nouveau-nés",
@@ -15,7 +19,6 @@ export const metadata: Metadata = {
     locale: "fr_HT",
   },
   manifest: "/manifest.json",
-  themeColor: "#F4A7BB",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

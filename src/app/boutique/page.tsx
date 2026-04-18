@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import ProductCard from "@/components/ui/ProductCard";
@@ -8,7 +9,7 @@ import { useStore } from "@/lib/store";
 import { t } from "@/lib/utils";
 import { DEMO_PRODUCTS, DEMO_CATEGORIES } from "@/lib/data";
 
-export default function BoutiquePage() {
+function BoutiqueContent() {
   const searchParams = useSearchParams();
   const { lang, filters, setFilter, resetFilters, favorites } = useStore();
 
@@ -142,5 +143,17 @@ export default function BoutiquePage() {
 
       <WhatsAppFloat />
     </div>
+  );
+}
+
+export default function BoutiquePage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-[1200px] mx-auto px-5 pt-28 pb-16 text-center text-gray-400">
+        Chargement...
+      </div>
+    }>
+      <BoutiqueContent />
+    </Suspense>
   );
 }
