@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogin = () => {
     // Simple demo auth — replace with Supabase Auth in production
-    if (loginForm.email && loginForm.password) {
+    if (loginForm.email === "cherliereveil67@gmail.com" && loginForm.password === "Cherisma") { {
       sessionStorage.setItem("admin_auth", "true");
       setAuthenticated(true);
     }
