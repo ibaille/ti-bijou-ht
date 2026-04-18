@@ -45,29 +45,40 @@ export default function AdminProductsPage() {
   const handleSave = () => {
     if (!form.name || !form.price) return;
 
+    const typedFields = {
+      name: form.name,
+      name_ht: form.name_ht,
+      description: form.description,
+      description_ht: form.description_ht,
+      price: Number(form.price),
+      old_price: form.old_price ? Number(form.old_price) : null,
+      category_id: form.category_id,
+      gender: form.gender as "fille" | "garcon" | "unisexe",
+      age_range: form.age_range as "0-3" | "3-6" | "6-12",
+      stock: Number(form.stock),
+      badge: (form.badge || null) as "new" | "popular" | "limited" | null,
+      is_coup_coeur: form.is_coup_coeur,
+    };
+
     if (editingProduct) {
       setProducts((prev) =>
         prev.map((p) =>
           p.id === editingProduct.id
-            ? { ...p, ...form, price: Number(form.price), old_price: form.old_price ? Number(form.old_price) : null, stock: Number(form.stock), badge: (form.badge || null) as any }
+            ? { ...p, ...typedFields }
             : p
         )
       );
     } else {
       const newProduct: Product = {
         id: `prod-${Date.now()}`,
-        ...form,
-        price: Number(form.price),
-        old_price: form.old_price ? Number(form.old_price) : null,
-        stock: Number(form.stock),
-        badge: (form.badge || null) as any,
+        ...typedFields,
         colors: [], sizes: [],
         images: ["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&h=400&fit=crop"],
         is_featured: false,
         is_active: true,
         views: 0,
         created_at: new Date().toISOString(),
-      } as any;
+      };
       setProducts((prev) => [newProduct, ...prev]);
     }
     setShowForm(false);
